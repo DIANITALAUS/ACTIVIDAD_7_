@@ -1,42 +1,111 @@
 Proceso Sistema_Control_De_Datos_Medicos_Control_Vital
-    // Declaración de variables
-    Definir nombre, clasificacion_imc, detalles_alerta, continuar Como Cadena;
-    Definir edad, talla, peso, presion_sistolica, presion_diastolica, glucosa, temperatura, imc Como Real;
+    
+    Definir clasificacion_imc, detalles_alerta, continuar Como Cadena;
+    Definir talla, peso, presion_sistolica, presion_diastolica, glucosa, temperatura, imc Como Real;
     Definir datos_normales Como Logico;
-    Definir dia, mes, anio, dia_actual, mes_actual, anio_actual, categoria_imc Como Entero;
+    
 	
     Repetir
         Limpiar Pantalla;
         Escribir "=== SISTEMA DE CONTROL DE DATOS MÉDICOS BÁSICOS ===";
 		
-        // ======== NOMBRE Y FECHA =========
-        Repetir
-            Escribir "Ingrese el nombre completo del paciente:";
-            Leer nombre;
-        Hasta Que nombre <> "";
+       
+		Escribir "Ingrese el nombre completo del paciente:"
+		Definir nombre Como Caracter
+		Definir esNumero Como Logico
+		Repetir
+			leer nombre
+			esNumero<- Verdadero
+			para i <- 1 hasta Longitud(nombre) Hacer
+				si Subcadena(nombre,i,i) < "0" o Subcadena(nombre,i,i) > "9" Entonces
+					esNumero <-Falso
+				FinSi
+			FinPara
+			
+			si esNumero Entonces
+				escribir "Error: No se permiten numeros. SOLO LETRAS"
+			FinSi
+		Hasta Que NO esNumero
+		escribir "Hola:" , nombre
+        
 		
-        Escribir "Ingrese el día de nacimiento (DD):";
-        Leer dia;
-        Escribir "Ingrese el mes de nacimiento (MM):";
-        Leer mes;
-        Escribir "Ingrese el año de nacimiento (AAAA):";
-        Leer anio;
+        Definir fecha_nac Como Cadena
+		Definir dia_txt, mes_txt, anio_txt Como Cadena
+		Definir dia_nac, mes_nac, anio_nac Como Entero
+		Definir dia_hoy, mes_hoy, anio_hoy Como Entero
+		Definir edad, i Como Entero
+		Definir es_valida Como Logico
 		
-        Escribir "Ingrese el día actual (DD):";
-        Leer dia_actual;
-        Escribir "Ingrese el mes actual (MM):";
-        Leer mes_actual;
-        Escribir "Ingrese el año actual (AAAA):";
-        Leer anio_actual;
+		Repetir
+			es_valida <- Verdadero
+			Escribir "Ingrese su fecha de nacimiento en formato DD-MM-AAAA:"
+			Leer fecha_nac
+			
+			// Validar formato mínimo
+			Si Longitud(fecha_nac) <> 10 O SubCadena(fecha_nac, 3, 3) <> "-" O SubCadena(fecha_nac, 6, 6) <> "-" Entonces
+				Escribir "Formato inválido. Use el formato DD-MM-AAAA."
+				es_valida <- Falso
+			Sino
+				// Extraer partes
+				dia_txt <- SubCadena(fecha_nac, 1, 2)
+				mes_txt <- SubCadena(fecha_nac, 4, 5)
+				anio_txt <- SubCadena(fecha_nac, 7, 10)
+				
+				// Validar que día y mes sean solo números
+				Para i <- 1 Hasta 2
+					Si SubCadena(dia_txt, i, i) < "0" O SubCadena(dia_txt, i, i) > "9" Entonces
+						es_valida <- Falso
+					FinSi
+					Si SubCadena(mes_txt, i, i) < "0" O SubCadena(mes_txt, i, i) > "9" Entonces
+						es_valida <- Falso
+					FinSi
+				FinPara
+				Para i <- 1 Hasta 4
+					Si SubCadena(anio_txt, i, i) < "0" O SubCadena(anio_txt, i, i) > "9" Entonces
+						es_valida <- Falso
+					FinSi
+				FinPara
+				
+				Si No es_valida Entonces
+					Escribir "La fecha contiene letras o símbolos. Solo se permiten números."
+				FinSi
+			FinSi
+			
+			// Convertir a número y validar rangos
+			Si es_valida Entonces
+				dia_nac <- ConvertirANumero(dia_txt)
+				mes_nac <- ConvertirANumero(mes_txt)
+				anio_nac <- ConvertirANumero(anio_txt)
+				
+				Si dia_nac < 1 O dia_nac > 31 Entonces
+					Escribir "Día fuera de rango (1-31)."
+					es_valida <- Falso
+				FinSi
+				Si mes_nac < 1 O mes_nac > 12 Entonces
+					Escribir "Mes fuera de rango (1-12)."
+					es_valida <- Falso
+				FinSi
+				Si anio_nac < 1900 O anio_nac > 2025 Entonces
+					Escribir "Año fuera de rango (1900-2025)."
+					es_valida <- Falso
+				FinSi
+			FinSi
+			
+		Hasta Que es_valida
 		
-        edad <- anio_actual - anio;
-        Si (mes_actual < mes) O (mes_actual = mes Y dia_actual < dia) Entonces
-            edad <- edad - 1;
-        FinSi
+		// Fecha actual (fija)
+		dia_hoy <- 2
+		mes_hoy <- 8
+		anio_hoy <- 2025
 		
-        Si edad < 0 O edad > 120 Entonces
-            Escribir "Edad no válida. Revise las fechas ingresadas.";
-        FinSi
+		// Cálculo de edad
+		edad <- anio_hoy - anio_nac
+		Si (mes_hoy < mes_nac) O (mes_hoy = mes_nac Y dia_hoy < dia_nac) Entonces
+			edad <- edad - 1
+		FinSi
+		
+		// Resultado
+		Escribir "HOLA: ", nombre, ",",   "EDAD: ", edad, " años."
 		
         // ======== INGRESO DE DATOS MÉDICOS =========
         Escribir "Ingrese la talla (m):"; Leer talla;
@@ -123,4 +192,5 @@ Proceso Sistema_Control_De_Datos_Medicos_Control_Vital
 	
     Escribir "Sistema finalizado. Gracias por utilizar el servicio.";
 FinProceso
+
 
